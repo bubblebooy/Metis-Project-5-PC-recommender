@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PC Recommender</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body align="center">
+
+  <h2>PC Build Recommender</h2>
+	<p style="color: grey"><em>Data From PcPartPicker: <a href="https://pcpartpicker.com/" style="color: grey">source data</a> </em></p>
+
+  <!-- {{features_vals}} -->
+
+  <form id="form" action="/build/" method="post">
+		<div id="form-watch">
+
+			<td>Builds</td>
+			<td>
+				<select name="build" id="build-selector"  style= max-width:80%>
+				{%for build in build_list %}
+						<option value="{{build}}" {{"selected" if params['build'] == build}} >{{build_list[build]}}</option>
+				{%endfor%}
+			</select>
+			</td>
+
+			<div class= flex>
+				<div class="animal-card left_flex">
+					<table style= width:100%>
+						<tr>
+
+						</tr>
+						<tr>
+							<td>Min Price</td>
+							<td><input type="number" min=0  name = min_price value = {{params.get('min_price')}}></td>
+						</tr>
+						<tr>
+							<td>Max Price</td>
+							<td><input type="number" min = 0 name = max_price value = {{params.get('max_price')}} ></td>
+						</tr>
+						<tr>
+							<td> <hr> </td>
+
+						</tr>
+						<tr>
+							<td>Plot Type</td>
+							<td>
+								<select name="plot_type" id="plot_type">
+									<option value="svd" {{"selected" if params['plot_type'] == 'svd'}} >SVD</option>
+									<option value="tsne" {{"selected" if params['plot_type'] == 'tsne'}} >TSNE</option>
+								</select>
+							</td>
+						</tr>
+
+						<tr>
+							<td>Plot Color</td>
+							<td>
+								<select name="c" id="c">
+									<option value="ward_predict" {{"selected" if params['c'] == 'ward_predict'}} >ward</option>
+									<option value="k_predict" {{"selected" if params['c'] == 'k_predict'}} >k means</option>
+									<option value="cpu_clock" {{"selected" if params['c'] == 'cpu_clock'}} >cpu clock speed</option>
+									<option value="cpu" {{"selected" if params['c'] == 'cpu'}} >AMD / Intel</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td>Dimensionality Reduction</td>
+							<td><input type="number" min=2  name = svd value = {{params.get('svd')}}></td>
+						</tr>
+						<tr>
+							<td>Multi Select</td>
+							<td>
+								<input type="checkbox" name="multi" value="true" {{"checked" if params['multi'] == 'true'}}>
+							</td>
+						</tr>
+
+					</table>
+					<ul id=selected_build_list>
+						{%for build in selected_builds %}
+								<li value="{{build}}" class = {{"selected" if params['build'] == build}} >{{build_list[build]}}</li>
+						{%endfor%}
+								<li value="reset" >Reset</li>
+					</ul>
+				</div>
+				<div class="right_flex">
+					<img src="{{url_for('static', filename='cluster_plot.png')}}?{{random_number}}" align="middle" width = 100% />
+				</div>
+			</div>
+
+		</div>
+
+
+	  <br>
+		{% if not message%}
+	  <button type="submit" class="button">
+	    Get Results
+	  </button>
+		{% endif %}
+	  <br>
+		<input type="hidden" name="remove_build" id='remove_build'>
+	</form>
+
+	<div class="results flex">
+	  {% if message %}
+			<div class="build_info left_flex">
+				<h2>Build Info</h2>
+				<a href={{"https://pcpartpicker.com" + params['build']}}>Build link</a>
+				{%for i in message %}
+						<p><strong>{{i}} : </strong> {{message[i]}}</p>
+				{%endfor%}
+			</div>
+	  {% endif %}
+		{% if recommendations is not none %}
+			<div class="recommendations right_flex">
+				<h2>Recommendations</h2>
+				{%for build in recommendations[:10] %}
+					<p>
+						<span class="recommendation" value = {{build}}><strong>{{build_list[build]}}</strong></span>
+						<a  href="https://pcpartpicker.com{{build}}">	https://pcpartpicker.com{{build}}</a>
+					</p>
+				{%endfor%}
+			</div>
+		{% endif %}
+	</div>
+
+	<footer>
+		Max Garber
+	</footer>
+
+	<script type="text/javascript" src="{{ url_for('static', filename='scripts/scripts.js') }}"></script>
+
+
+</body>
+</html>
